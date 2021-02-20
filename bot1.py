@@ -21,7 +21,7 @@ slack_event_adapter = SlackEventAdapter(os.environ['SIGNING_SECRET'],'/slack/eve
 client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
 
 # connect the bot to the channel in Slack Channel
-client.chat_postMessage(channel='#bot-testing', text='Send Message Demo')
+client.chat_postMessage(channel='#assignment-1', text='Bot connected')
 
 # Get Bot ID
 BOT_ID = client.api_call("auth.test")['user_id']
@@ -36,7 +36,8 @@ def message(payload):
     channel_id = event.get('channel')
     user_id = event.get('user')
     text2 = event.get('text')
-    if BOT_ID !=user_id:
+    endChar = text2[-1]
+    if BOT_ID !=user_id and endChar=='?':
         client.chat_postMessage(channel=channel_id, text=text2)
 
 # Run the webserver micro-service
