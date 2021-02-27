@@ -2,6 +2,10 @@ import slack
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+
+import requests
+import json
+
 # Import Flask
 from flask import Flask
 # Handles events from Slack
@@ -37,8 +41,19 @@ def message(payload):
     user_id = event.get('user')
     text2 = event.get('text')
     endChar = text2[-1]
+    words = text2.split()
     if BOT_ID !=user_id and endChar=='?':
         client.chat_postMessage(channel=channel_id, text=text2)
+    if BOT_ID !=user_id and words[0].lower()=='city':
+        weatherResponse =requests.get('http://api.openweathermap.org/data/2.5/weather?q=' + text2[4:] + '&appid=' + os.environ['WEATHER_APPID'])
+        if(weatherResponse.status_code == 200):
+            weatherObject = json.loads(weatherResponse.text)
+            currentTemp = round(weatherObject["main"]["temp"] - 273.15, 0)
+            feelTemp = round(weatherObject["main"]["feels_like"] - 273.15, 0)
+            client.chat_postMessage(channel=channel_id, text="The current temp in " + text2[4:].lower() + " is: " + str(currentTemp) + "°C and it feels like: " + str(feelTemp) + "°C")
+        else:
+            client.chat_postMessage(channel=channel_id, text="city does not exist")
+
 
 # Run the webserver micro-service
 if __name__ == "__main__":
