@@ -48,10 +48,11 @@ def message(payload):
     if BOT_ID !=user_id and words[0].lower()=='city':
         cities_list = []
         with open('cities.txt', 'r') as cities_file:
-            lines = cities_file.readLines()
+            lines = cities_file.readlines()
             for line in lines:
                 cities_list.append(line)
         city, ratio = process.extractOne(text2[4:], cities_list)
+        city = city.rstrip()
         weatherResponse =requests.get('http://api.openweathermap.org/data/2.5/weather?q=' + city + '&appid=' + os.environ['WEATHER_APPID'])
         if(weatherResponse.status_code == 200):
             weatherObject = json.loads(weatherResponse.text)
